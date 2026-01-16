@@ -1,0 +1,149 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linear-semantic-agent
+  namespace: mapache
+  labels:
+    app: linear-semantic-agent
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linear-semantic-agent
+  template:
+    metadata:
+      labels:
+        app: linear-semantic-agent
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: linear-semantic-agent
+      containers:
+      - name: agent
+        image: gcr.io/linear-semantic-agents/linear-semantic-agent:latest
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+
+        env:
+        - name: GCP_PROJECT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: agent-config
+              key: gcp-project-id
+        - name: VERTEX_AI_LOCATION
+          valueFrom:
+            configMapKeyRef:
+              name: agent-config
+              key: vertex-ai-location
+        - name: LINEAR_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent-secrets
+              key: linear-api-key
+        - name: COMPOSIO_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent-secrets
+              key: composio-api-key
+
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+        livenessProbe:
+          httpGet:
+            path: /live
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+
+      volumes:
+      - name: tmp
+        emptyDir: {}
+
+      nodeSelector:
+        cloud.google.com/gke-nodepool: default-pool
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: linear-semantic-agent
+  namespace: mapache
+  labels:
+    app: linear-semantic-agent
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: linear-semantic-agent
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: linear-semantic-agent
+  namespace: mapache
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: linear-semantic-agent
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: linear-semantic-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: linear-semantic-agent
+subjects:
+- kind: ServiceAccount
+  name: linear-semantic-agent
+  namespace: mapache

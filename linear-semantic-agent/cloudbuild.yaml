@@ -1,0 +1,45 @@
+steps:
+  # Step 1: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/linear-semantic-agent:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/linear-semantic-agent:latest'
+      - '-f'
+      - 'docker/Dockerfile'
+      - '.'
+    id: 'build-image'
+
+  # Step 2: Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/linear-semantic-agent:$SHORT_SHA'
+    id: 'push-image'
+
+  # Step 3: Deploy to Vertex AI Agent Runtime
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - 'run'
+      - '--filename=kubernetes/'
+      - '--image=gcr.io/$PROJECT_ID/linear-semantic-agent:$SHORT_SHA'
+      - '--location=us-central1'
+      - '--cluster=mapache-agents'
+    env:
+      - 'GCP_PROJECT=$PROJECT_ID'
+    id: 'deploy-agent'
+
+# Build configuration
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+# Timeout
+timeout: '1800s'
+
+# Images to push
+images:
+  - 'gcr.io/$PROJECT_ID/linear-semantic-agent:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/linear-semantic-agent:latest'
