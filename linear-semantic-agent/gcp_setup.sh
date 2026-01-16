@@ -58,11 +58,21 @@ gcloud firestore databases create --region=$REGION || true
 
 # 7. Create secrets
 echo -e "${YELLOW}Creating Kubernetes secrets...${NC}"
-echo "Enter your Linear API Key (from https://linear.app/settings/api):"
-read LINEAR_API_KEY
 
-echo "Enter your Composio API Key:"
-read COMPOSIO_API_KEY
+# Source .env if it exists
+if [ -f .env ]; then
+  source .env
+fi
+
+if [ -z "$LINEAR_API_KEY" ] || [ "$LINEAR_API_KEY" == "<your-linear-api-key>" ]; then
+  echo "Enter your Linear API Key (from https://linear.app/settings/api):"
+  read LINEAR_API_KEY
+fi
+
+if [ -z "$COMPOSIO_API_KEY" ] || [ "$COMPOSIO_API_KEY" == "<your-composio-api-key>" ]; then
+  echo "Enter your Composio API Key:"
+  read COMPOSIO_API_KEY
+fi
 
 kubectl create secret generic agent-secrets \
   --from-literal=linear-api-key="$LINEAR_API_KEY" \

@@ -1,0 +1,5 @@
+Connecting to reasoning engine: projects/928436235058/locations/us-central1/reasoningEngines/600717078323789824
+Sending test query...
+Test failed: 400 Reasoning Engine Execution failed.
+Please refer to our documentation (https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/troubleshooting/use) for checking logs and other troubleshooting tips.
+Error Details: {"detail":"Agent Engine Error: An error occurred during invocation. Exception: Cannot run the event loop while another loop is running\nRequest Data: {'source': 'test_script', 'task_description': 'Build a new landing page for mapache.app using modern design principles.'}"}

@@ -1,0 +1,13 @@
+Starting deployment to Vertex AI Reasoning Engine...
+Using bucket linear-semantic-agents-staging
+Writing to gs://linear-semantic-agents-staging/reasoning_engine/reasoning_engine.pkl
+Writing to gs://linear-semantic-agents-staging/reasoning_engine/requirements.txt
+Creating in-memory tarfile of extra_packages
+Writing to gs://linear-semantic-agents-staging/reasoning_engine/dependencies.tar.gz
+Creating ReasoningEngine
+Create ReasoningEngine backing LRO: projects/928436235058/locations/us-central1/reasoningEngines/5015370613053718528/operations/6627644831382372352
+ReasoningEngine created. Resource name: projects/928436235058/locations/us-central1/reasoningEngines/5015370613053718528
+To use this ReasoningEngine in another session:
+reasoning_engine = vertexai.preview.reasoning_engines.ReasoningEngine('projects/928436235058/locations/us-central1/reasoningEngines/5015370613053718528')
+Deployment successful!
+Reasoning Engine Resource Name: projects/928436235058/locations/us-central1/reasoningEngines/5015370613053718528
