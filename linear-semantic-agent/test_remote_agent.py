@@ -9,8 +9,8 @@ def test_remote():
         location=settings.gcp_region,
     )
     
-    # Load the deployed engine
-    resource_name = "projects/928436235058/locations/us-central1/reasoningEngines/5015370613053718528"
+    # Load the deployed engine - v3
+    resource_name = "projects/928436235058/locations/us-central1/reasoningEngines/7826461205463040000"
     print(f"Connecting to reasoning engine: {resource_name}")
     remote_agent = reasoning_engines.ReasoningEngine(resource_name)
     

@@ -28,9 +28,29 @@ class FirestoreClient:
 
     def __init__(self):
         """Initialize Firestore client."""
+        import os
+        import google.auth
+        
+        # In Vertex AI Reasoning Engine, explicitly load credentials
+        try:
+            credentials, project_id = google.auth.default(
+                scopes=['https://www.googleapis.com/auth/cloud-platform']
+            )
+            logger.info("Using ADC", project=project_id or settings.gcp_project_id)
+        except Exception as e:
+            logger.warning("ADC not available, using default", error=str(e))
+            credentials = None
+            project_id = None
+        
+        # Handle default database explicitly
+        database_id = settings.firestore_database_id
+        if database_id == "(default)":
+            database_id = None
+
         self.db = firestore.Client(
-            project=settings.gcp_project_id,
-            database=settings.firestore_database_id
+            project=project_id or settings.gcp_project_id,
+            database=database_id,
+            credentials=credentials
         )
         self.prefix = settings.firestore_collection_prefix
 
@@ -40,7 +60,7 @@ class FirestoreClient:
         self.decisions_col = self.db.collection(f"{self.prefix}decisions")
         self.agent_state_col = self.db.collection(f"{self.prefix}agent_state")
 
-        logger.info("Firestore client initialized", project=settings.gcp_project_id)
+        logger.info("Firestore client initialized", project=self.db.project)
 
     # --- Projects Cache ---
 

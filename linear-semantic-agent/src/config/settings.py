@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     composio_api_key: Optional[str] = None
 
     # Firestore Configuration
-    firestore_database_id: str = "(default)"
+    firestore_database_id: Optional[str] = "(default)"
     firestore_collection_prefix: str = "mapache_"
 
     # Embeddings Configuration
