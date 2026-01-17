@@ -1,3 +1,8 @@
+---
+name: debug-mode
+description: A systematic, evidence-based approach to solving complex bugs.
+---
+
 # Skill: Debug Mode
 
 ## Description

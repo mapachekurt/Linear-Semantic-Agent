@@ -1,3 +1,8 @@
+---
+name: test-specialist
+description: Expert in writing robust, maintainable unit and integration tests. Focuses on edge cases and failure modes.
+---
+
 # Skill: Test Specialist
 
 ## Description
