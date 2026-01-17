@@ -84,15 +84,13 @@ def deploy():
         staging_bucket='gs://linear-semantic-agents-staging'
     )
 
-    # Define requirements
+    # Define minimal requirements for Reasoning Engine runtime
     requirements = [
         "google-cloud-aiplatform[reasoningengine]>=1.48.0",
         "google-cloud-firestore",
         "httpx",
         "tenacity",
         "pydantic-settings",
-        "numpy",
-        "pandas",
         "python-dotenv",
         "structlog",
         "langchain",
@@ -103,12 +101,15 @@ def deploy():
     # Create the Reasoning Engine
     # Note: We bundle the 'src' directory as part of the deployment
     try:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        src_path = os.path.join(current_dir, "src")
+        
         remote_agent = reasoning_engines.ReasoningEngine.create(
             LinearReasoningAgent(),
             requirements=requirements,
             display_name="Linear Semantic Agent",
             description="AI agent for validating and categorizing Linear tasks",
-            extra_packages=["src"]
+            extra_packages=[src_path]
         )
 
         print(f"Deployment successful!")
